@@ -1,0 +1,89 @@
+First, update and upgrade all packages: 
+sudo apt-get update 
+sudo apt-get upgrade 
+
+sudo -i # Change to root 
+cd /usr/local/src 
+
+
+Main docs: 
+https://wiki.asterisk.org/wiki/display/AST/Installing+Asterisk+From+Source
+
+Get Asterisk: 
+wget https://downloads.asterisk.org/pub/telephony/asterisk/asterisk-14-current.tar.gz
+tar zxvf asterisk-14-current.tar.gz
+cd <whatever-folder>    
+
+cd contrib/scripts 
+
+./install_prereq install 
+
+cd - 
+
+./configure 
+
+make menuconfig    # then exit without making any changes 
+
+make 
+
+make install 
+
+make samples 
+
+make config    # creates init.d scripts 
+
+# check status 
+/etc/init.d/asterisk status     
+
+
+# Details from: https://wiki.asterisk.org/wiki/display/AST/Hello+World
+
+cd /etc/asterisk
+
+mv extensions.conf extensions.sample  # backup file
+ 
+vi extensions.conf # and put the following in the file: 
+
+
+[from-internal]
+exten=>6001,1,Dial(SIP/demo-alice,20)
+exten=>6002,1,Dial(SIP/demo-bob,20)
+
+
+
+mv sip.conf sip.sample  # backup 
+vi sip.conf # and put the following in the file 
+
+
+[general]
+transport=udp
+
+[friends_internal](!)
+type=friend
+host=dynamic
+context=from-internal
+disallow=all
+allow=ulaw
+
+[demo-alice](friends_internal)
+secret=123 ; put a strong, unique password here instead
+
+[demo-bob](friends_internal)
+secret=123 ; put a strong, unique password here instead
+
+
+
+
+
+# start asterisk on the console 
+asterisk -cvvvvvv       # start with lots of verbosity (many messages) 
+
+# then install twinkle and connect 
+User: 6001 
+Password: temp123 
+Server: (the ip address of the machine where you installed asterisk) 
+
+
+# the connect another instance of twinkle on another machine. Use 6002 this time. 
+
+Dial 100 from either one and then dial one from the other. 
